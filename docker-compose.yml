@@ -1,0 +1,76 @@
+services:
+  oracle-xe:
+    image: gvenzl/oracle-xe:latest
+    container_name: matrix_oracle_xe
+    ports:
+      - "1521:1521"
+      - "5500:5500"
+    environment:
+      - ORACLE_PASSWORD=MatrixPass123
+      - ORACLE_CHARACTERSET=AL32UTF8
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+      - ./init-scripts:/container-entrypoint-initdb.d
+    shm_size: 2g
+    mem_limit: 2g
+    mem_reservation: 1g
+    healthcheck:
+      test: ["CMD-SHELL", "echo 'SELECT 1 FROM DUAL;' | sqlplus -L -s / as sysdba || exit 1"]
+      interval: 15s
+      timeout: 5s
+      start_period: 120s
+      retries: 30
+    networks:
+      - matrix-net
+
+  data-generator:
+    build:
+      context: ./data-generator
+      dockerfile: Dockerfile
+    container_name: matrix_data_generator
+    environment:
+      - ORACLE_HOST=oracle-xe
+      - ORACLE_PORT=1521
+      - ORACLE_SERVICE=XEPDB1
+      - ORACLE_USER=MATRIX_USER
+      - ORACLE_PASSWORD=Neo2025
+      - RESET_DATA=1 
+    depends_on:
+      oracle-xe:
+        condition: service_healthy
+    networks:
+      - matrix-net
+
+  insights-api:
+    build:
+      context: ./insights
+      dockerfile: Dockerfile
+    container_name: matrix_insights_api
+    volumes:
+      - ./insights:/app   
+    environment:
+      - ORACLE_HOST=oracle-xe
+      - ORACLE_PORT=1521
+      - ORACLE_SERVICE=XEPDB1
+      - ORACLE_USER=MATRIX_USER
+      - ORACLE_PASSWORD=Neo2025
+      # For network shares: force polling
+      - WATCHFILES_FORCE_POLLING=true
+    command: >
+      uvicorn app:app
+      --host 0.0.0.0 --port 8080
+      --reload
+      --reload-dir /app
+      --reload-dir /app/templates
+    ports:
+      - "8088:8080"
+    networks:
+      - matrix-net
+
+
+networks:
+  matrix-net:
+    driver: bridge
+
+volumes:
+  oracle-data:

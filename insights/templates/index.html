@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Matrix Insights</title>
+  <link rel="icon" href="/static/favicon.ico">
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; margin: 2rem; }
+    h1 { margin-bottom: 0.25rem; }
+    h2 { margin-top: 2rem; }
+    table { border-collapse: collapse; width: 100%; margin-top: 0.5rem; }
+    th, td { border: 1px solid #ddd; padding: 8px; font-size: 14px; }
+    th { background: #f5f5f5; text-align: left; }
+    .wrap { max-width: 1100px; margin: 0 auto; }
+    .note { color: #666; font-size: 13px; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Matrix Insights</h1>
+  <div class="note">Live from Oracle XE (XEPDB1). Use <code>/insights</code> for JSON.</div>
+
+  <h2>1) Busiest ships (by mission count)</h2>
+  <table>
+    <tr><th>ship_id</th><th>ship_name</th><th>missions</th></tr>
+    {% for row in busiest_ships %}
+    <tr><td>{{row.ship_id}}</td><td>{{row.ship_name}}</td><td>{{row.missions}}</td></tr>
+    {% endfor %}
+  </table>
+
+  <h2>2) Agent hotspots (locations with agent encounters)</h2>
+  <table>
+    <tr><th>location_id</th><th>loc_name</th><th>encounters</th></tr>
+    {% for row in agent_hotspots %}
+    <tr><td>{{row.location_id}}</td><td>{{row.loc_name}}</td><td>{{row.encounters}}</td></tr>
+    {% endfor %}
+  </table>
+
+  <h2>3) Training & belief by ship</h2>
+  <table>
+    <tr><th>ship_id</th><th>ship_name</th><th>avg_training_hours</th><th>avg_belief</th></tr>
+    {% for row in training_by_ship %}
+    <tr>
+      <td>{{row.ship_id}}</td>
+      <td>{{row.ship_name}}</td>
+      <td>{{ (row.avg_training_hours if row.avg_training_hours is not none else '') }}</td>
+      <td>{{ (row.avg_belief if row.avg_belief is not none else '') }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <h2>4) Oracle guidance vs success rate</h2>
+  <table>
+    <tr><th>guidance</th><th>missions</th><th>success_pct</th></tr>
+    {% for row in oracle_success %}
+    <tr><td>{{row.guidance}}</td><td>{{row.missions}}</td><td>{{row.success_pct}}%</td></tr>
+    {% endfor %}
+  </table>
+<h2>5) Notable humans (top jack-ins)</h2>
+<table>
+  <tr>
+    <th>human_id</th><th>real_name</th><th>rsi_name</th>
+    <th>ship_name</th><th>jack_in_count</th><th>mentor_name</th>
+  </tr>
+  {% for row in notable_humans %}
+  <tr>
+    <td>{{ row.human_id }}</td>
+    <td>{{ row.real_name }}</td>
+    <td>{{ row.rsi_name }}</td>
+    <td>{{ row.ship_name }}</td>
+    <td>{{ row.jack_in_count }}</td>
+    <td>{{ row.mentor_name or '' }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<h2>6) Recent oracle-guided missions</h2>
+<table>
+  <tr>
+    <th>mission_id</th><th>mission_name</th><th>start_date</th>
+    <th>ship_name</th><th>loc_name</th><th>oracle_identity</th>
+  </tr>
+  {% for row in oracle_guided_examples %}
+  <tr>
+    <td>{{ row.mission_id }}</td>
+    <td>{{ row.mission_name }}</td>
+    <td>{{ row.start_date }}</td>
+    <td>{{ row.ship_name }}</td>
+    <td>{{ row.loc_name }}</td>
+    <td>{{ row.oracle_identity }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<h2>7) Top agents (by termination_count)</h2>
+<table>
+  <tr>
+    <th>agent_id</th><th>designation_code</th><th>threat_class</th>
+    <th>termination_count</th><th>host_preference</th><th>patrol_zone</th>
+  </tr>
+  {% for row in top_agents %}
+  <tr>
+    <td>{{ row.agent_id }}</td>
+    <td>{{ row.designation_code }}</td>
+    <td>{{ row.threat_classification }}</td>
+    <td>{{ row.termination_count }}</td>
+    <td>{{ row.host_preference }}</td>
+    <td>{{ row.patrol_zone }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+  
+</div>
+</body>
+</html>
