@@ -68,6 +68,7 @@ Verify that services are running correctly:
   ```
 
  - confirm data loaded: 
+
  ```bash
 docker exec -it matrix_oracle_xe sqlplus MATRIX_USER/Neo2025@oracle-xe:1521/xepdb1
 
@@ -151,13 +152,7 @@ Run the validation script included in the repository:
 
 The script (`check_matrix.sql`) validates the data in the tables and is located in the repository's root directory.
 
-## Troubleshooting
-
-- **Empty dashboard tables but `/insights` JSON has data**: Ensure `run_query()` lowercases column names and the Jinja template uses matching key casing.
 
 ## Next Steps
 
-- Add charting to the dashboard (e.g., Chart.js or Recharts)
-- Include more relationships and sample queries
-- Extend the data generator to simulate time series or mission outcomes
-- Secure the API with authentication middleware
+- Connect to AI data driven app 
